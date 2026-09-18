@@ -5005,7 +5005,6 @@ dependencies = [
  "dbus-tokio",
  "dioxus",
  "dioxus-free-icons",
- "dirs",
  "js-sys",
  "nanoid",
  "nanoid-wasm",
