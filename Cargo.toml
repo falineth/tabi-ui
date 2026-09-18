@@ -35,7 +35,6 @@ web-sys = { version = "=0.3.99", features = [
     "Window",
 ], optional = true }
 js-sys = { version = "=0.3.99", optional = true }
-dirs = { version = "=6.0.0", optional = true }
 tokio = { version = "=1.53.1", features = ["time"], optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -47,7 +46,6 @@ desktop = [
     "dioxus/desktop",
     "dep:nanoid",
     "dep:dbus",
-    "dep:dirs",
     "dep:dbus-tokio",
     "dep:tokio",
 ]
