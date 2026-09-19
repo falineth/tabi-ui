@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use tabi_ui::ThemeContext;
 use tabi_ui::components::*;
+use tabi_ui::icons::{MdEdit, MdMoreVert, MdSettings};
 
 const TAILWIND_CSS: Asset = asset!("../assets/tailwind.css");
 
@@ -11,6 +12,7 @@ enum PageTypes {
     TextInput,
     Toggle,
     Slider,
+    DropdownMenu,
 }
 
 #[component]
@@ -39,6 +41,11 @@ fn Pages() -> Element {
                 on_value_change: move |_| current_page.set(PageTypes::Slider),
                 "Slider"
             }
+            Toggle {
+                value: *current_page.read() == PageTypes::DropdownMenu,
+                on_value_change: move |_| current_page.set(PageTypes::DropdownMenu),
+                "Dropdown Menu"
+            }
         }
         div { class: "grow flex flex-col h-full w-full",
             {
@@ -54,6 +61,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::Slider => rsx! {
                         SliderPage {}
+                    },
+                    PageTypes::DropdownMenu => rsx! {
+                        DropdownMenuPage {}
                     },
                 }
             }
@@ -106,7 +116,6 @@ fn ButtonPage() -> Element {
                     }
                     "LG"
                 }
-
             }
             div { class: "flex flex-wrap gap-1 items-end",
                 "IconXS"
@@ -243,7 +252,19 @@ fn SliderPage() -> Element {
                 on_value_change: move |new_value| value.set(Some(new_value)),
                 orientation: SliderOrientation::Vertical,
             }
+        }
+    }
+}
 
+#[component]
+fn DropdownMenuPage() -> Element {
+    rsx! {
+        div { class: "flex flex-col items-start p-4 gap-4",
+            h1 { "Dropdown Menu" }
+            DropdownMenu { icon: MdMoreVert,
+                MenuItem { icon: MdSettings, label: "Settings" }
+                MenuItem { icon: MdEdit, label: "Edit" }
+            }
         }
     }
 }

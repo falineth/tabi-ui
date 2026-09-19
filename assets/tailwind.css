@@ -246,6 +246,9 @@
   .top-2 {
     top: calc(var(--spacing) * 2);
   }
+  .top-full {
+    top: 100%;
+  }
   .right-2 {
     right: calc(var(--spacing) * 2);
   }
@@ -707,6 +710,9 @@
   .px-2\.5 {
     padding-inline: calc(var(--spacing) * 2.5);
   }
+  .px-3 {
+    padding-inline: calc(var(--spacing) * 3);
+  }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
   }
@@ -988,6 +994,9 @@
     .hover\:border-view-decorationhover:hover {
       border-color: var(--color-view-decorationhover);
     }
+    .hover\:border-window-decorationfocus:hover {
+      border-color: var(--color-window-decorationfocus);
+    }
     .hover\:border-window-decorationhover:hover {
       border-color: var(--color-window-decorationhover);
     }
@@ -1032,6 +1041,14 @@
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:bg-view-decorationhover\/30:hover {
         background-color: color-mix(in oklab, var(--color-view-decorationhover) 30%, transparent);
+      }
+    }
+    .hover\:bg-window-decorationfocus\/20:hover {
+      background-color: color-mix(in srgb, #3daee9 20%, transparent);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-window-decorationfocus\/20:hover {
+        background-color: color-mix(in oklab, var(--color-window-decorationfocus) 20%, transparent);
       }
     }
     .hover\:text-foreground:hover {
