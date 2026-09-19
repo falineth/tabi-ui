@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use tabi_ui::ThemeContext;
 use tabi_ui::components::*;
-use tabi_ui::icons::MdAdd;
+use tabi_ui::icons::{MdAdd, MdEdit, MdMoreVert, MdSettings};
 
 const TAILWIND_CSS: Asset = asset!("../assets/tailwind.css");
 
@@ -128,7 +128,10 @@ fn App() -> Element {
                         CardTitle { "User Information" }
                         CardDescription { "Please fill in your details below" }
                         CardAction {
-                            // Drop down menu
+                            DropdownMenu { icon: MdMoreVert,
+                                MenuItem { icon: MdSettings, label: "Settings" }
+                                MenuItem { icon: MdEdit, label: "Edit" }
+                            }
                         }
                         CardContent { class: "flex flex-col gap-2",
                             div { class: "grid grid-cols-2 gap-4",
