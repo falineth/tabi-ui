@@ -60,6 +60,7 @@
         "oklch",
         "onblur",
         "onclick",
+        "oncontextmenu",
         "Ondemand",
         "oninput",
         "onmounted",

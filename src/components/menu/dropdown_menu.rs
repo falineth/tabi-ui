@@ -1,9 +1,10 @@
+use std::rc::Rc;
+
 use dioxus::prelude::*;
-use dioxus_free_icons::IconShape;
 
 use crate::components::menu::MenuContext;
 use crate::icons::MdMoreVert;
-use crate::{Button, ButtonSize, ButtonVariant, Icon, MenuList, PortalOut, use_portal};
+use crate::{Button, ButtonSize, ButtonVariant, Icon, IconShape, MenuList, PortalOut, use_portal};
 
 #[component]
 pub fn DropdownMenu<T: IconShape + Clone + PartialEq + 'static>(
@@ -12,20 +13,72 @@ pub fn DropdownMenu<T: IconShape + Clone + PartialEq + 'static>(
     #[props(default)] variant: ButtonVariant,
     children: Element,
 ) -> Element {
+    /*
+
+       State
+
+    */
+
     let mut open = use_signal(bool::default);
 
+    /*
+
+       Refs
+
+    */
+
+    let mut menu_host: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
+
+    /*
+
+       Contexts
+
+    */
+
     use_context_provider(|| MenuContext { open });
+
+    /*
+
+       Callbacks
+
+    */
 
     let handle_toggle = use_callback(move |_| {
         open.with_mut(|open| *open = !*open);
     });
 
-    let handle_menu_shown = use_callback(async move |event: Event<MountedData>| {
-        _ = event.data.set_focus(true).await;
+    /*
+
+        Effects
+
+    */
+
+    use_effect(move || {
+        if !open() {
+            return;
+        }
+
+        let Some(menu_host) = menu_host() else {
+            return;
+        };
+
+        spawn(async move {
+            _ = menu_host.set_focus(true).await;
+        });
     });
 
+    /*
+
+       Elements
+
+    */
+
     rsx! {
-        div { class: "relative",
+        div {
+            class: "relative outline-none",
+            tabindex: "0",
+            onmounted: move |e| menu_host.set(Some(e.data())),
+            onblur: move |_| open.set(false),
             Button {
                 class,
                 size: ButtonSize::IconLG,
@@ -34,12 +87,7 @@ pub fn DropdownMenu<T: IconShape + Clone + PartialEq + 'static>(
                 Icon { icon }
             }
             if *open.read() {
-                MenuList {
-                    class: "z-50 absolute top-full",
-                    onmounted: move |event| handle_menu_shown.call(event),
-                    onblur: move |_| open.set(false),
-                    {children}
-                }
+                MenuList { class: "z-50 absolute top-full", {children} }
             }
         }
     }
