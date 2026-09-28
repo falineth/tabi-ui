@@ -105,6 +105,7 @@ pub fn DialogContent(
                 "data-state": if dialog_context.open.read().eq(&true) { "open" } else { "closed" },
                 class: "hidden data-open:grid data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 max-w-[calc(100%-2rem)] gap-4 rounded-sm p-4 text-xs/relaxed ring-1 border duration-100 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none",
                 class: "ring-view-foregroundnormal/5 border-view-foregroundnormal/20 bg-view-backgroundnormal",
+                class: "{class}",
                 class: if full_width { "w-full" },
                 ..rest,
                 {children}

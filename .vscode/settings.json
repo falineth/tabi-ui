@@ -63,6 +63,8 @@
         "Ondemand",
         "oninput",
         "onmounted",
+        "onmouseenter",
+        "onmouseleave",
         "onpointerdown",
         "onpointerenter",
         "onpointermove",
