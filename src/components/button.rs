@@ -49,6 +49,8 @@ pub fn Button(
     #[props(default)] class: String,
     #[props(extends = GlobalAttributes, extends = button)] rest: Vec<Attribute>,
     #[props(default)] onclick: EventHandler<Event<MouseData>>,
+    #[props(default)] onmouseenter: EventHandler<Event<MouseData>>,
+    #[props(default)] onmouseleave: EventHandler<Event<MouseData>>,
     children: Element,
 ) -> Element {
     rsx! {
@@ -64,6 +66,8 @@ pub fn Button(
             class: "{size.class()}",
             class: "{class}",
             onclick: move |e| onclick.call(e),
+            onmouseenter: move |e| onmouseenter.call(e),
+            onmouseleave: move |e| onmouseleave.call(e),
             ..rest,
             {children}
         }
