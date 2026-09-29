@@ -237,6 +237,9 @@
   .inset-0 {
     inset: 0px;
   }
+  .-top-1 {
+    top: calc(var(--spacing) * -1);
+  }
   .top-0 {
     top: 0px;
   }
@@ -258,8 +261,14 @@
   .left-1\/2 {
     left: calc(1 / 2 * 100%);
   }
+  .left-\[calc\(100\%\+8px\)\] {
+    left: calc(100% + 8px);
+  }
   .isolate {
     isolation: isolate;
+  }
+  .z-10 {
+    z-index: 10;
   }
   .z-20 {
     z-index: 20;
@@ -438,6 +447,12 @@
   }
   .min-w-40 {
     min-width: calc(var(--spacing) * 40);
+  }
+  .min-w-48 {
+    min-width: calc(var(--spacing) * 48);
+  }
+  .min-w-52 {
+    min-width: calc(var(--spacing) * 52);
   }
   .shrink-0 {
     flex-shrink: 0;
@@ -697,6 +712,9 @@
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
+  }
+  .p-8 {
+    padding: calc(var(--spacing) * 8);
   }
   .px-1\.5 {
     padding-inline: calc(var(--spacing) * 1.5);
@@ -994,9 +1012,6 @@
     .hover\:border-view-decorationhover:hover {
       border-color: var(--color-view-decorationhover);
     }
-    .hover\:border-window-decorationfocus:hover {
-      border-color: var(--color-window-decorationfocus);
-    }
     .hover\:border-window-decorationhover:hover {
       border-color: var(--color-window-decorationhover);
     }
@@ -1041,14 +1056,6 @@
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:bg-view-decorationhover\/30:hover {
         background-color: color-mix(in oklab, var(--color-view-decorationhover) 30%, transparent);
-      }
-    }
-    .hover\:bg-window-decorationfocus\/20:hover {
-      background-color: color-mix(in srgb, #3daee9 20%, transparent);
-    }
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:bg-window-decorationfocus\/20:hover {
-        background-color: color-mix(in oklab, var(--color-window-decorationfocus) 20%, transparent);
       }
     }
     .hover\:text-foreground:hover {

@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-use tabi_ui::ThemeContext;
 use tabi_ui::components::*;
 use tabi_ui::icons::{MdEdit, MdMoreVert, MdSettings};
 
@@ -13,6 +12,7 @@ enum PageTypes {
     Toggle,
     Slider,
     DropdownMenu,
+    ContextMenu,
 }
 
 #[component]
@@ -46,6 +46,11 @@ fn Pages() -> Element {
                 on_value_change: move |_| current_page.set(PageTypes::DropdownMenu),
                 "Dropdown Menu"
             }
+            Toggle {
+                value: *current_page.read() == PageTypes::ContextMenu,
+                on_value_change: move |_| current_page.set(PageTypes::ContextMenu),
+                "Context Menu"
+            }
         }
         div { class: "grow flex flex-col h-full w-full",
             {
@@ -64,6 +69,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::DropdownMenu => rsx! {
                         DropdownMenuPage {}
+                    },
+                    PageTypes::ContextMenu => rsx! {
+                        ContextMenuPage {}
                     },
                 }
             }
@@ -262,8 +270,64 @@ fn DropdownMenuPage() -> Element {
         div { class: "flex flex-col items-start p-4 gap-4",
             h1 { "Dropdown Menu" }
             DropdownMenu { icon: MdMoreVert,
-                MenuItem { icon: MdSettings, label: "Settings" }
-                MenuItem { icon: MdEdit, label: "Edit" }
+                MenuItem {
+                    icon: MdSettings,
+                    label: "Settings",
+                    onclick: |_| debug!("Settings"),
+                }
+                MenuItem {
+                    icon: MdEdit,
+                    label: "Edit",
+                    onclick: |_| debug!("Edit"),
+                }
+                SubMenu { title: "More options", icon: MdMoreVert,
+                    MenuItem {
+                        icon: MdSettings,
+                        label: "Preferences",
+                        onclick: |_| debug!("Preferences"),
+                    }
+                    MenuItem {
+                        icon: MdEdit,
+                        label: "Advanced settings",
+                        onclick: |_| debug!("Advanced settings"),
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn ContextMenuPage() -> Element {
+    rsx! {
+        div { class: "flex flex-col items-start p-4 gap-4 w-full h-full",
+            h1 { "Context Menu" }
+            ContextMenuArea { class: "grow w-full flex items-center justify-center rounded-sm border border-view-foregroundnormal/20 p-8 select-none",
+                p { "Right-click anywhere in this area." }
+                ContextMenu {
+                    MenuItem {
+                        icon: MdSettings,
+                        label: "Settings",
+                        onclick: |_| debug!("Settings"),
+                    }
+                    MenuItem {
+                        icon: MdEdit,
+                        label: "Edit",
+                        onclick: |_| debug!("Edit"),
+                    }
+                    SubMenu { title: "More options", icon: MdMoreVert,
+                        MenuItem {
+                            icon: MdSettings,
+                            label: "Preferences",
+                            onclick: |_| debug!("Preferences"),
+                        }
+                        MenuItem {
+                            icon: MdEdit,
+                            label: "Advanced settings",
+                            onclick: |_| debug!("Advanced settings"),
+                        }
+                    }
+                }
             }
         }
     }
@@ -282,6 +346,7 @@ fn App() -> Element {
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
     use dioxus::desktop::{Config, WindowBuilder};
+    use tabi_ui::ThemeContext;
 
     let theme_context = ThemeContext::init().await;
 
