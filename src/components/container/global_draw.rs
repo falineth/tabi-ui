@@ -45,6 +45,8 @@ pub fn GlobalDraw(
     children: Element,
     actions: Option<Element>,
     content: Option<Element>,
+    #[props(default)] class: String,
+    #[props(default)] style: String,
 ) -> Element {
     let mut open = use_signal(bool::default);
 
@@ -55,7 +57,10 @@ pub fn GlobalDraw(
     });
 
     rsx! {
-        div { class: "flex h-lvh w-lvw overflow-hidden",
+        div {
+            class: "flex h-lvh w-lvw overflow-hidden",
+            class: "{class}",
+            style,
             div {
                 class: "flex flex-col justify-between h-full p-2 border-r overflow-hidden shrink-0",
                 class: "bg-view-backgroundnormal text-view-foregroundnormal border-window-foregroundnormal/20",
