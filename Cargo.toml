@@ -35,7 +35,7 @@ web-sys = { version = "=0.3.99", features = [
     "Window",
 ], optional = true }
 js-sys = { version = "=0.3.99", optional = true }
-tokio = { version = "=1.53.2", features = ["time"], optional = true }
+tokio = { version = "=1.53.3", features = ["time"], optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus-tokio = { version = "=0.7.6", optional = true }
