@@ -13,6 +13,7 @@ enum PageTypes {
     Slider,
     DropdownMenu,
     ContextMenu,
+    Dialog,
     Toast,
     BusyOverlay,
 }
@@ -37,6 +38,11 @@ fn Pages() -> Element {
                 value: *current_page.read() == PageTypes::ContextMenu,
                 on_value_change: move |_| current_page.set(PageTypes::ContextMenu),
                 "Context Menu"
+            }
+            Toggle {
+                value: *current_page.read() == PageTypes::Dialog,
+                on_value_change: move |_| current_page.set(PageTypes::Dialog),
+                "Dialog"
             }
             Toggle {
                 value: *current_page.read() == PageTypes::DropdownMenu,
@@ -84,6 +90,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::ContextMenu => rsx! {
                         ContextMenuPage {}
+                    },
+                    PageTypes::Dialog => rsx! {
+                        DialogPage {}
                     },
                     PageTypes::Toast => rsx! {
                         ToastPage {}
@@ -345,6 +354,74 @@ fn ContextMenuPage() -> Element {
                             onclick: |_| debug!("Advanced settings"),
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn DialogPage() -> Element {
+    let mut open = use_signal(|| Some(false));
+    let mut confirmed = use_signal(|| false);
+
+    rsx! {
+        div { class: "flex flex-col items-start p-4 gap-4",
+            h1 { "Dialog" }
+            h2 { "Dismissible dialog" }
+            p { "Open a dialog, then close it with a button or by clicking the backdrop." }
+            Dialog {
+                DialogTrigger {
+                    Button { "Open dialog" }
+                }
+                DialogContent { allow_dismiss: true,
+                    DialogHeader {
+                        DialogTitle { "Welcome to the gallery" }
+                        DialogDescription { "Dialogs display content above the current page." }
+                    }
+                    p { "Use the header, description, body, and footer to organize your content." }
+                    DialogFooter {
+                        DialogClose {
+                            Button { variant: ButtonVariant::Outline, "Close" }
+                        }
+                    }
+                }
+            }
+            h2 { "Controlled confirmation" }
+            p { "This compact dialog uses a signal to manage its open state." }
+            Dialog { open, on_open_change: move |value| open.set(Some(value)),
+                Button {
+                    onclick: move |_| {
+                        confirmed.set(false);
+                        open.set(Some(true));
+                    },
+                    "Open confirmation"
+                }
+                DialogContent { full_width: false,
+                    DialogHeader {
+                        DialogTitle { "Confirm action" }
+                        DialogDescription { "The backdrop does not dismiss this dialog." }
+                    }
+                    p { "Confirm to update the result shown on this page." }
+                    DialogFooter {
+                        DialogClose {
+                            Button { variant: ButtonVariant::Outline, "Cancel" }
+                        }
+                        Button {
+                            onclick: move |_| {
+                                confirmed.set(true);
+                                open.set(Some(false));
+                            },
+                            "Confirm"
+                        }
+                    }
+                }
+            }
+            p {
+                if confirmed() {
+                    "Action confirmed."
+                } else {
+                    "No action confirmed."
                 }
             }
         }

@@ -1,5 +1,3 @@
-// TODO: ensure focus cannot leave dialog
-
 use std::rc::Rc;
 
 use dioxus::prelude::*;
@@ -100,24 +98,26 @@ pub fn DialogContent(
     rsx! {
         PortalIn { portal: dialog_context.portal,
             DialogOverlay { allow_dismiss }
-            div {
-                "data-slot": "dialog-content",
-                "data-state": if dialog_context.open.read().eq(&true) { "open" } else { "closed" },
-                class: "hidden data-open:grid data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 max-w-[calc(100%-2rem)] gap-4 rounded-sm p-4 text-xs/relaxed ring-1 border duration-100 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none",
-                class: "ring-view-foregroundnormal/5 border-view-foregroundnormal/20 bg-view-backgroundnormal",
-                class: "{class}",
-                class: if full_width { "w-full" },
-                ..rest,
-                {children}
-                DialogClose {
-                    "data-slot": "dialog-close",
-                    class: "absolute top-2 right-2",
-                    Button {
-                        variant: ButtonVariant::GhostView,
-                        size: ButtonSize::IconSM,
-                        Icon { icon: MdClose }
-                        span { class: "sr-only", "Close" }
+            FocusTrap { class: "w-full h-full",
+                div {
+                    "data-slot": "dialog-content",
+                    "data-state": if dialog_context.open.read().eq(&true) { "open" } else { "closed" },
+                    class: "hidden data-open:grid data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 max-w-[calc(100%-2rem)] gap-4 rounded-sm p-4 text-xs/relaxed ring-1 border duration-100 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none",
+                    class: "ring-view-foregroundnormal/5 border-view-foregroundnormal/20 bg-view-backgroundnormal",
+                    class: "{class}",
+                    class: if full_width { "w-full" },
+                    ..rest,
+                    DialogClose {
+                        "data-slot": "dialog-close",
+                        class: "absolute top-2 right-2",
+                        Button {
+                            variant: ButtonVariant::GhostView,
+                            size: ButtonSize::IconSM,
+                            Icon { icon: MdClose }
+                            span { class: "sr-only", "Close" }
+                        }
                     }
+                    {children}
                 }
             }
         }
@@ -239,5 +239,92 @@ pub fn DialogTrigger(
 
     rsx! {
         div { class: "{class}", onclick: handle_open_dialog, ..rest, {children} }
+    }
+}
+
+#[component]
+pub fn FocusTrap(
+    #[props(default)] class: String,
+    #[props(extends = GlobalAttributes, extends = div)] rest: Vec<Attribute>,
+    children: Element,
+) -> Element {
+    /*
+
+       Refs
+
+    */
+
+    let mut main_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
+
+    let open = use_dialog_context().open;
+
+    /*
+
+       Functions
+
+    */
+
+    async fn return_focus(main_element: Signal<Option<Rc<MountedData>>>) {
+        let main_element = main_element.read();
+
+        let Some(main_element) = main_element.as_ref() else {
+            return;
+        };
+
+        _ = main_element.set_focus(true).await;
+    }
+
+    /*
+
+       Callbacks
+
+    */
+
+    let handle_focus_leaving = use_callback(move |_| {
+        spawn(async move {
+            if open() {
+                return_focus(main_element).await;
+            }
+        });
+    });
+
+    /*
+
+       Effects
+
+    */
+
+    use_effect(move || {
+        if open() {
+            handle_focus_leaving.call(());
+        }
+    });
+
+    /*
+
+       Elements
+
+    */
+
+    rsx! {
+        div {
+            tabindex: if open() { 0 } else { -1 },
+            onfocus: move |_| handle_focus_leaving.call(()),
+        }
+        div {
+            // Keep the focus target mounted so the effect can focus it on opening.
+            tabindex: if open() { 0 } else { -1 },
+            onmounted: move |e| {
+                main_element.set(Some(e.data()));
+            },
+            class: "outline-none",
+            class: "{class}",
+            ..rest,
+            {children}
+        }
+        div {
+            tabindex: if open() { 0 } else { -1 },
+            onfocus: move |_| handle_focus_leaving.call(()),
+        }
     }
 }
