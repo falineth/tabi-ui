@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_imports)]
 
 mod badge;
+mod busy_overlay;
 mod button;
 mod container;
 mod dialog;
@@ -14,6 +15,7 @@ mod theme_style;
 mod toast;
 
 pub use badge::*;
+pub use busy_overlay::*;
 pub use button::*;
 pub use container::*;
 pub use dialog::*;

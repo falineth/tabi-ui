@@ -14,6 +14,7 @@ enum PageTypes {
     DropdownMenu,
     ContextMenu,
     Toast,
+    BusyOverlay,
 }
 
 #[component]
@@ -22,6 +23,11 @@ fn Pages() -> Element {
 
     rsx! {
         div { class: "w-40 shrink-0 h-full flex flex-col p-1 gap-2 border-r bg-view-backgroundnormal border-view-foregroundnormal/20",
+            Toggle {
+                value: *current_page.read() == PageTypes::BusyOverlay,
+                on_value_change: move |_| current_page.set(PageTypes::BusyOverlay),
+                "Busy Overlay"
+            }
             Toggle {
                 value: *current_page.read() == PageTypes::Button,
                 on_value_change: move |_| current_page.set(PageTypes::Button),
@@ -81,6 +87,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::Toast => rsx! {
                         ToastPage {}
+                    },
+                    PageTypes::BusyOverlay => rsx! {
+                        BusyOverlayPage {}
                     },
                 }
             }
@@ -369,6 +378,55 @@ fn ToastPage() -> Element {
                 }
             }
         }
+    }
+}
+
+#[component]
+fn BusyOverlayPage() -> Element {
+    let mut busy_status = use_signal_sync(|| None::<BusyStatus>);
+
+    rsx! {
+        div { class: "flex flex-col items-start p-4 gap-4",
+            h1 { "Busy Overlay" }
+            p {
+                "Show a blocking overlay with a spinner or progress indicator. Each demo closes automatically."
+            }
+            div { class: "flex flex-wrap gap-2",
+                Button {
+                    onclick: move |_| async move {
+                        busy_status
+                            .set(
+                                Some(BusyStatus {
+                                    title: "Loading",
+                                    message: "Please wait while the demo loads…".into(),
+                                    percentage: None,
+                                }),
+                            );
+                        tabi_ui::sleep(3000).await;
+                        busy_status.set(None);
+                    },
+                    "Show spinner"
+                }
+                Button {
+                    onclick: move |_| async move {
+                        for step in 0..=10 {
+                            busy_status
+                                .set(
+                                    Some(BusyStatus {
+                                        title: "Processing",
+                                        message: format!("Progress: {}%", step * 10),
+                                        percentage: Some(f64::from(step) / 10.0),
+                                    }),
+                                );
+                            tabi_ui::sleep(500).await;
+                        }
+                        busy_status.set(None);
+                    },
+                    "Show progress"
+                }
+            }
+        }
+        BusyOverlay { busy_status }
     }
 }
 
