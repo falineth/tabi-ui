@@ -1,6 +1,5 @@
 use std::rc::Rc;
 
-use dioxus::logger::tracing;
 use dioxus::prelude::*;
 
 use crate::hooks::use_controlled;
@@ -43,7 +42,7 @@ pub fn Slider(
 
     let mut drag_start_position: Signal<Option<f64>> = use_signal(Option::default);
 
-    let mut dragging_value: Signal<Option<f32>> = use_signal(Option::default);
+    let mut drag_start_value: Signal<f32> = use_signal(|| *value.read());
 
     let mut thumb_ref: Signal<Option<Rc<MountedData>>> = use_signal(Option::default);
 
@@ -54,7 +53,7 @@ pub fn Slider(
     */
 
     let display_position = use_memo(move || {
-        let display_value = dragging_value.read().unwrap_or(*value.read());
+        let display_value = *value.read();
 
         let value_range = max - min;
 
@@ -67,10 +66,19 @@ pub fn Slider(
 
     */
 
+    let set_value = use_callback(move |new_value: f32| {
+        let new_value = if small_step > 0.0 {
+            (new_value / small_step).round() * small_step
+        } else {
+            new_value
+        };
+
+        set_value_internal.call(new_value.clamp(min, max));
+    });
+
     let handle_keydown = use_callback(move |event: Event<KeyboardData>| {
         if drag_start_position.read().is_some() {
             if event.key() == Key::Escape {
-                dragging_value.set(None);
                 drag_start_position.set(None);
 
                 event.prevent_default();
@@ -81,27 +89,27 @@ pub fn Slider(
 
         match event.key() {
             Key::Home => {
-                set_value_internal.call(min);
+                set_value.call(min);
                 event.prevent_default();
             }
             Key::End => {
-                set_value_internal.call(max);
+                set_value.call(max);
                 event.prevent_default();
             }
             Key::PageUp => {
-                set_value_internal.call((*value.read() + large_step).clamp(min, max));
+                set_value.call(*value.read() + large_step);
                 event.prevent_default();
             }
             Key::PageDown => {
-                set_value_internal.call((*value.read() - large_step).clamp(min, max));
+                set_value.call(*value.read() - large_step);
                 event.prevent_default();
             }
             Key::ArrowRight | Key::ArrowUp => {
-                set_value_internal.call((*value.read() + small_step).clamp(min, max));
+                set_value.call(*value.read() + small_step);
                 event.prevent_default();
             }
             Key::ArrowLeft | Key::ArrowDown => {
-                set_value_internal.call((*value.read() - small_step).clamp(min, max));
+                set_value.call(*value.read() - small_step);
                 event.prevent_default();
             }
             _ => {}
@@ -109,6 +117,8 @@ pub fn Slider(
     });
 
     let handle_pointerdown = use_callback(move |event: Event<PointerData>| {
+        drag_start_value.set(*value.read());
+
         if orientation == Some(SliderOrientation::Vertical) {
             drag_start_position.set(Some(event.client_coordinates().y));
         } else {
@@ -155,9 +165,9 @@ pub fn Slider(
         let value_change = value_range * slide_amount / slider_size;
 
         #[allow(clippy::cast_possible_truncation)]
-        let new_value = (*value.read() + (value_change as f32)).clamp(min, max);
+        let new_value = *drag_start_value.read() + (value_change as f32);
 
-        dragging_value.set(Some(new_value));
+        set_value.call(new_value);
     });
 
     let handle_pointerup = use_callback(move |event: Event<PointerData>| {
@@ -165,11 +175,6 @@ pub fn Slider(
 
         let thumb_id = thumb_id.cloned();
 
-        if let Some(new_value) = *dragging_value.read() {
-            set_value_internal.call(new_value);
-        }
-
-        dragging_value.set(None);
         drag_start_position.set(None);
 
         spawn(async move {
