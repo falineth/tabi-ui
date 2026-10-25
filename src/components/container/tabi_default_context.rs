@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use dioxus::prelude::*;
 
-use crate::{ThemeContext, ThemeStyle, WindowSize};
+use crate::{ThemeContext, ThemeStyle, ToastProvider, WindowSize};
 
 /// # TabiDefaultContext
 ///
@@ -43,6 +43,7 @@ use crate::{ThemeContext, ThemeStyle, WindowSize};
 ///
 /// Provides the contexts
 ///  - WindowSize
+///  - ToastContext
 ///
 #[component]
 pub fn TabiDefaultContext(#[props(default)] class: String, children: Element) -> Element {
@@ -143,7 +144,7 @@ pub fn TabiDefaultContext(#[props(default)] class: String, children: Element) ->
             style: if !*loaded.read() { "display: none;" },
             onmounted: handle_outer_frame_mounted,
             onresize: handle_resize_event,
-            {children}
+            ToastProvider { {children} }
         }
     }
 }

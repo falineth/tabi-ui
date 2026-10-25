@@ -42,10 +42,12 @@
     --color-view-backgroundnormal: #ffffff;
     --color-view-decorationfocus: #3daee9;
     --color-view-decorationhover: #3daee9;
+    --color-view-foregroundactive: #3daee9;
     --color-view-foregroundinactive: #707d8a;
     --color-view-foregroundlink: #2d7faa;
     --color-view-foregroundnegative: #da4453;
     --color-view-foregroundnormal: #232629;
+    --color-view-foregroundpositive: #27ae60;
     --color-window-backgroundnormal: #eff0f1;
     --color-window-decorationfocus: #3daee9;
     --color-window-decorationhover: #3daee9;
@@ -208,6 +210,9 @@
     container-type: inline-size;
     container-name: card-header;
   }
+  .pointer-events-auto {
+    pointer-events: auto;
+  }
   .pointer-events-none {
     pointer-events: none;
   }
@@ -254,6 +259,9 @@
   }
   .right-2 {
     right: calc(var(--spacing) * 2);
+  }
+  .bottom-4 {
+    bottom: calc(var(--spacing) * 4);
   }
   .left-0 {
     left: 0px;
@@ -394,6 +402,9 @@
   .max-h-72 {
     max-height: calc(var(--spacing) * 72);
   }
+  .min-h-0 {
+    min-height: 0px;
+  }
   .min-h-7 {
     min-height: calc(var(--spacing) * 7);
   }
@@ -426,6 +437,9 @@
   }
   .w-lvw {
     width: 100lvw;
+  }
+  .max-w-\[50lvw\] {
+    max-width: 50lvw;
   }
   .max-w-\[calc\(100\%-2rem\)\] {
     max-width: calc(100% - 2rem);
@@ -476,6 +490,9 @@
   }
   .cursor-default {
     cursor: default;
+  }
+  .cursor-pointer {
+    cursor: pointer;
   }
   .touch-none {
     touch-action: none;
@@ -536,6 +553,9 @@
   }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
+  }
+  .gap-3 {
+    gap: calc(var(--spacing) * 3);
   }
   .gap-4 {
     gap: calc(var(--spacing) * 4);
@@ -710,11 +730,17 @@
   .p-2\! {
     padding: calc(var(--spacing) * 2) !important;
   }
+  .p-3 {
+    padding: calc(var(--spacing) * 3);
+  }
   .p-4 {
     padding: calc(var(--spacing) * 4);
   }
   .p-8 {
     padding: calc(var(--spacing) * 8);
+  }
+  .px-1 {
+    padding-inline: var(--spacing);
   }
   .px-1\.5 {
     padding-inline: calc(var(--spacing) * 1.5);
@@ -807,6 +833,10 @@
   .text-\[0\.625rem\] {
     font-size: 0.625rem;
   }
+  .leading-none {
+    --tw-leading: 1;
+    line-height: 1;
+  }
   .font-medium {
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
@@ -824,6 +854,9 @@
   }
   .whitespace-nowrap {
     white-space: nowrap;
+  }
+  .whitespace-pre-wrap {
+    white-space: pre-wrap;
   }
   .text-button-foregroundnormal {
     color: var(--color-button-foregroundnormal);
@@ -1064,6 +1097,9 @@
     .hover\:text-muted-foreground:hover {
       color: var(--muted-foreground);
     }
+    .hover\:text-view-foregroundnormal:hover {
+      color: var(--color-view-foregroundnormal);
+    }
     .hover\:underline:hover {
       text-decoration-line: underline;
     }
@@ -1173,6 +1209,13 @@
       outline: 2px solid transparent;
       outline-offset: 2px;
     }
+  }
+  .focus-visible\:outline:focus-visible {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+  .focus-visible\:outline-view-decorationfocus:focus-visible {
+    outline-color: var(--color-view-decorationfocus);
   }
   .active\:ring-1:active {
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
@@ -1296,6 +1339,9 @@
   .data-placeholder\:text-button-foregroundinactive[data-placeholder] {
     color: var(--color-button-foregroundinactive);
   }
+  .data-\[closing\=true\]\:opacity-0[data-closing="true"] {
+    opacity: 0%;
+  }
   .data-\[size\=default\]\:h-7[data-size="default"] {
     height: calc(var(--spacing) * 7);
   }
@@ -1359,6 +1405,24 @@
   }
   :is(.\*\:data-\[slot\=select-value\]\:gap-1\.5 > *)[data-slot="select-value"] {
     gap: calc(var(--spacing) * 1.5);
+  }
+  .data-\[variant\=error\]\:border-view-foregroundnegative[data-variant="error"] {
+    border-color: var(--color-view-foregroundnegative);
+  }
+  .data-\[variant\=error\]\:text-view-foregroundnegative[data-variant="error"] {
+    color: var(--color-view-foregroundnegative);
+  }
+  .data-\[variant\=info\]\:border-view-foregroundactive[data-variant="info"] {
+    border-color: var(--color-view-foregroundactive);
+  }
+  .data-\[variant\=info\]\:text-view-foregroundactive[data-variant="info"] {
+    color: var(--color-view-foregroundactive);
+  }
+  .data-\[variant\=success\]\:border-view-foregroundpositive[data-variant="success"] {
+    border-color: var(--color-view-foregroundpositive);
+  }
+  .data-\[variant\=success\]\:text-view-foregroundpositive[data-variant="success"] {
+    color: var(--color-view-foregroundpositive);
   }
   @supports (backdrop-filter: var(--tw)) {
     .supports-backdrop-filter\:backdrop-blur-xs {
@@ -1914,6 +1978,10 @@
   inherits: false;
   initial-value: solid;
 }
+@property --tw-leading {
+  syntax: "*";
+  inherits: false;
+}
 @property --tw-font-weight {
   syntax: "*";
   inherits: false;
@@ -2045,6 +2113,11 @@
   initial-value: "";
   inherits: false;
 }
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
 @property --tw-backdrop-blur {
   syntax: "*";
   inherits: false;
@@ -2115,6 +2188,7 @@
       --tw-skew-x: initial;
       --tw-skew-y: initial;
       --tw-border-style: solid;
+      --tw-leading: initial;
       --tw-font-weight: initial;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
@@ -2145,6 +2219,7 @@
       --tw-drop-shadow-size: initial;
       --tw-duration: initial;
       --tw-content: "";
+      --tw-outline-style: solid;
       --tw-backdrop-blur: initial;
       --tw-backdrop-brightness: initial;
       --tw-backdrop-contrast: initial;

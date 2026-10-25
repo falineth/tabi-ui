@@ -13,6 +13,7 @@ enum PageTypes {
     Slider,
     DropdownMenu,
     ContextMenu,
+    Toast,
 }
 
 #[component]
@@ -27,19 +28,9 @@ fn Pages() -> Element {
                 "Button"
             }
             Toggle {
-                value: *current_page.read() == PageTypes::TextInput,
-                on_value_change: move |_| current_page.set(PageTypes::TextInput),
-                "Text Input"
-            }
-            Toggle {
-                value: *current_page.read() == PageTypes::Toggle,
-                on_value_change: move |_| current_page.set(PageTypes::Toggle),
-                "Toggle"
-            }
-            Toggle {
-                value: *current_page.read() == PageTypes::Slider,
-                on_value_change: move |_| current_page.set(PageTypes::Slider),
-                "Slider"
+                value: *current_page.read() == PageTypes::ContextMenu,
+                on_value_change: move |_| current_page.set(PageTypes::ContextMenu),
+                "Context Menu"
             }
             Toggle {
                 value: *current_page.read() == PageTypes::DropdownMenu,
@@ -47,9 +38,24 @@ fn Pages() -> Element {
                 "Dropdown Menu"
             }
             Toggle {
-                value: *current_page.read() == PageTypes::ContextMenu,
-                on_value_change: move |_| current_page.set(PageTypes::ContextMenu),
-                "Context Menu"
+                value: *current_page.read() == PageTypes::Slider,
+                on_value_change: move |_| current_page.set(PageTypes::Slider),
+                "Slider"
+            }
+            Toggle {
+                value: *current_page.read() == PageTypes::TextInput,
+                on_value_change: move |_| current_page.set(PageTypes::TextInput),
+                "Text Input"
+            }
+            Toggle {
+                value: *current_page.read() == PageTypes::Toast,
+                on_value_change: move |_| current_page.set(PageTypes::Toast),
+                "Toast"
+            }
+            Toggle {
+                value: *current_page.read() == PageTypes::Toggle,
+                on_value_change: move |_| current_page.set(PageTypes::Toggle),
+                "Toggle"
             }
         }
         div { class: "grow flex flex-col h-full w-full",
@@ -72,6 +78,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::ContextMenu => rsx! {
                         ContextMenuPage {}
+                    },
+                    PageTypes::Toast => rsx! {
+                        ToastPage {}
                     },
                 }
             }
@@ -327,6 +336,36 @@ fn ContextMenuPage() -> Element {
                             onclick: |_| debug!("Advanced settings"),
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn ToastPage() -> Element {
+    let mut message = use_signal(|| Some("This is a toast message.".to_string()));
+    let mut toast = use_toast();
+
+    rsx! {
+        div { class: "flex flex-col items-start p-4 gap-4 w-full",
+            h1 { "Toast" }
+            label { r#for: "toast-message", "Message" }
+            TextArea {
+                id: "toast-message",
+                placeholder: "Enter a toast message",
+                value: message,
+                on_value_change: move |value| message.set(Some(value)),
+            }
+            div { class: "flex flex-wrap gap-1",
+                Button { onclick: move |_| toast.info(message.read().clone().unwrap_or_default()),
+                    "Info"
+                }
+                Button { onclick: move |_| toast.success(message.read().clone().unwrap_or_default()),
+                    "Success"
+                }
+                Button { onclick: move |_| toast.error(message.read().clone().unwrap_or_default()),
+                    "Error"
                 }
             }
         }
