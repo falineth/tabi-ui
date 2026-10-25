@@ -98,11 +98,15 @@ pub fn DialogContent(
     rsx! {
         PortalIn { portal: dialog_context.portal,
             DialogOverlay { allow_dismiss }
-            FocusTrap { class: "w-full h-full",
+            FocusTrap { class: "fixed h-0 w-0 z-50",
                 div {
                     "data-slot": "dialog-content",
                     "data-state": if dialog_context.open.read().eq(&true) { "open" } else { "closed" },
-                    class: "hidden data-open:grid data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 max-w-[calc(100%-2rem)] gap-4 rounded-sm p-4 text-xs/relaxed ring-1 border duration-100 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none",
+                    class: "hidden gap-4 rounded-sm p-4 text-xs/relaxed ring-1 border duration-100 outline-none",
+                    class: "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                    class: "max-w-[calc(100%-2rem)] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl",
+                    class: "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+                    class: "data-open:grid data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
                     class: "ring-view-foregroundnormal/5 border-view-foregroundnormal/20 bg-view-backgroundnormal",
                     class: "{class}",
                     class: if full_width { "w-full" },
@@ -307,24 +311,25 @@ pub fn FocusTrap(
     */
 
     rsx! {
-        div {
-            tabindex: if open() { 0 } else { -1 },
-            onfocus: move |_| handle_focus_leaving.call(()),
-        }
-        div {
-            // Keep the focus target mounted so the effect can focus it on opening.
-            tabindex: if open() { 0 } else { -1 },
-            onmounted: move |e| {
-                main_element.set(Some(e.data()));
-            },
-            class: "outline-none",
-            class: "{class}",
-            ..rest,
-            {children}
-        }
-        div {
-            tabindex: if open() { 0 } else { -1 },
-            onfocus: move |_| handle_focus_leaving.call(()),
+        div { class: "{class}",
+            div {
+                tabindex: if open() { 0 } else { -1 },
+                onfocus: move |_| handle_focus_leaving.call(()),
+            }
+            div {
+                // Keep the focus target mounted so the effect can focus it on opening.
+                tabindex: if open() { 0 } else { -1 },
+                onmounted: move |e| {
+                    main_element.set(Some(e.data()));
+                },
+                class: "outline-none",
+                ..rest,
+                {children}
+            }
+            div {
+                tabindex: if open() { 0 } else { -1 },
+                onfocus: move |_| handle_focus_leaving.call(()),
+            }
         }
     }
 }
