@@ -11,6 +11,7 @@ mod navigation;
 mod progress_indicator;
 mod spinner;
 mod theme_style;
+mod toast;
 
 pub use badge::*;
 pub use button::*;
@@ -24,3 +25,4 @@ pub use navigation::*;
 pub use progress_indicator::*;
 pub use spinner::*;
 pub use theme_style::*;
+pub use toast::*;
