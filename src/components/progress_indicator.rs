@@ -16,7 +16,7 @@ pub fn ProgressIndicator(
                 cy: 50,
                 r: 45,
                 fill: "#0000",
-                stroke: "#000",
+                stroke: "currentColor",
                 stroke_width: 3,
             }
             circle {
@@ -24,7 +24,7 @@ pub fn ProgressIndicator(
                 cy: 50,
                 r: 22,
                 fill: "#0000",
-                stroke: "#000",
+                stroke: "currentColor",
                 stroke_width: 44,
                 stroke_dasharray: "{filled_radius} 300",
                 transform: "rotate(-90 50 50)",
