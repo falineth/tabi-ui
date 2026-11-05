@@ -6,8 +6,6 @@ use crate::hooks::use_controlled;
 pub fn TextInput(
     #[props(default)] class: String,
 
-    #[props(default)] default_value: String,
-
     #[props(default)] value: ReadSignal<Option<String>>,
 
     #[props(default)] on_value_change: Callback<String>,
@@ -21,7 +19,16 @@ pub fn TextInput(
     #[props(extends = GlobalAttributes, extends = input)] rest: Vec<Attribute>,
     children: Element,
 ) -> Element {
-    let (value, set_value_internal) = use_controlled(value, default_value, on_value_change);
+    let mut current_value = use_signal(move || value.read().cloned().unwrap_or_default());
+
+    let handle_on_input = use_callback(move |event: Event<FormData>| {
+        current_value.set(event.data.value());
+        on_value_change(event.data.value());
+    });
+
+    use_effect(move || {
+        current_value.set(value.cloned().unwrap_or_default());
+    });
 
     rsx! {
         input {
@@ -33,13 +40,18 @@ pub fn TextInput(
             class: "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
             class: "h-7 rounded-sm border px-2 py-0.5 text-sm transition-colors aria-invalid:ring-2 md:text-xs/relaxed w-full min-w-0 outline-none",
             class: "{class}",
-            value,
-            oninput: move |e| set_value_internal(e.data.value()),
+            value: if value.read().is_some() { value },
+            oninput: handle_on_input,
             onblur: move |e| on_blur.call(e),
             onmounted: move |e| on_mounted.call(e),
             onkeydown: move |e| {
                 if e.key() == Key::Enter {
-                    on_accept.call(value.cloned());
+                    if let Some(value) = value() {
+                        on_accept.call(value);
+                        return;
+                    }
+
+                    on_accept.call(current_value());
                 }
             },
             ..rest,
