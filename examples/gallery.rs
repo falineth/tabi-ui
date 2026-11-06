@@ -9,6 +9,7 @@ enum PageTypes {
     #[default]
     Button,
     TextInput,
+    TextArea,
     Toggle,
     Slider,
     DropdownMenu,
@@ -55,6 +56,11 @@ fn Pages() -> Element {
                 "Slider"
             }
             Toggle {
+                value: *current_page.read() == PageTypes::TextArea,
+                on_value_change: move |_| current_page.set(PageTypes::TextArea),
+                "Text Area"
+            }
+            Toggle {
                 value: *current_page.read() == PageTypes::TextInput,
                 on_value_change: move |_| current_page.set(PageTypes::TextInput),
                 "Text Input"
@@ -78,6 +84,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::TextInput => rsx! {
                         TextInputPage {}
+                    },
+                    PageTypes::TextArea => rsx! {
+                        TextAreaPage {}
                     },
                     PageTypes::Toggle => rsx! {
                         TogglePage {}
@@ -184,13 +193,60 @@ fn ButtonPage() -> Element {
 
 #[component]
 fn TextInputPage() -> Element {
+    let mut text_a = use_signal(|| Some("text input A".to_string()));
+    let mut text_b = use_signal(|| "text input B".to_string());
+
+    let mut toast = use_toast();
+
     rsx! {
         div { class: "flex flex-col p-1 gap-1",
             div { class: "p-2",
-                TextInput { class: "p-4", placeholder: "placeholder" }
+                TextInput {
+                    class: "p-4",
+                    value: text_a,
+                    on_value_change: move |value| text_a.set(Some(value)),
+                    on_accept: move |value| toast.info(value),
+                }
             }
             Card { class: "flex-row! flex-wrap p-2! gap-1!",
-                TextInput { placeholder: "placeholder" }
+                TextInput {
+                    class: "p-4",
+                    placeholder: "placeholder",
+                    initial_value: text_b,
+                    on_value_change: move |value| text_b.set(value),
+                    on_accept: move |value| toast.info(value),
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn TextAreaPage() -> Element {
+    let mut text_a = use_signal(|| Some("text area A".to_string()));
+
+    let mut text_b = use_signal(|| Some("text area B".to_string()));
+
+    let mut toast = use_toast();
+
+    rsx! {
+        div { class: "flex flex-col p-1 gap-1",
+            h1 { "Text Area" }
+            div { class: "p-2",
+                TextArea {
+                    value: text_a,
+                    placeholder: "Enter multiple lines of text",
+                    on_value_change: move |e| text_a.set(Some(e)),
+                    on_accept: move |value| toast.info(value),
+                }
+            }
+            Card { class: "p-2! gap-1!",
+                TextArea {
+                    initial_value: text_b,
+                    placeholder: "Enter multiple lines of text",
+                    on_value_change: move |e| text_b.set(Some(e)),
+                    on_accept: move |value| toast.info(value),
+                }
             }
         }
     }
