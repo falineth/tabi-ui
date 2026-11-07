@@ -188,7 +188,7 @@ pub fn SelectTrigger<T: Clone + PartialEq + 'static>(props: SelectTriggerProps) 
 
                 let mut search_string = ctx.search_string.write();
 
-                if get_now() - search_string.age > 500f64 {
+                if get_now() - search_string.age > 500 {
                     search_string.text.clear();
                 }
 
