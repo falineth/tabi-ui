@@ -1,15 +1,14 @@
 #[cfg(feature = "web")]
-pub fn get_now() -> f64 {
-    web_sys::js_sys::Date::now()
+pub fn get_now() -> u128 {
+    web_sys::js_sys::Date::now() as u128
 }
 
 #[cfg(feature = "desktop")]
-pub fn get_now() -> f64 {
+pub fn get_now() -> u128 {
     std::time::SystemTime::now()
         .duration_since(std::time::SystemTime::UNIX_EPOCH)
         .unwrap_or_default()
-        .as_secs_f64()
-        * 1000f64
+        .as_millis()
 }
 
 #[cfg(feature = "web")]

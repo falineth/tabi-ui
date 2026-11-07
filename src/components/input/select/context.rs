@@ -15,7 +15,7 @@ pub struct OptionState<T: Clone + PartialEq + 'static> {
 
 pub struct SearchText {
     pub text: String,
-    pub age: f64,
+    pub age: u128,
 }
 
 impl Default for SearchText {
