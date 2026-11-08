@@ -1,12 +1,12 @@
 use dioxus::prelude::*;
 
-use crate::use_theme_colors;
+use crate::{ThemeDetails, use_theme_colors};
 
 #[component]
 pub fn ThemeStyle() -> Element {
-    let theme_css = use_theme_colors();
+    let ThemeDetails { theme_colors, .. } = use_theme_colors();
 
     rsx! {
-        style { "{theme_css}" }
+        style { "{theme_colors}" }
     }
 }

@@ -1,12 +1,20 @@
 use dioxus::prelude::*;
 
+use crate::ThemeDetails;
+
 const DEFAULT_THEME: &str = include_str!("../../../assets/default_theme.css");
 const DEFAULT_DARK_THEME: &str = include_str!("../../../assets/default_dark_theme.css");
 const DEFAULT_WINDOW_BACKGROUND: (u8, u8, u8, u8) = (0xEF, 0xF0, 0xF1, 0xFF);
 const DEFAULT_DARK_WINDOW_BACKGROUND: (u8, u8, u8, u8) = (0x20, 0x23, 0x26, 0xFF);
 
-pub fn use_theme_colors() -> ReadSignal<String> {
-    use_signal(get_theme_colors).into()
+pub fn use_theme_colors() -> ThemeDetails {
+    let theme_colors = use_signal_sync(get_theme_colors);
+    let prefer_dark = use_signal_sync(get_is_dark_mode);
+
+    ThemeDetails {
+        theme_colors: theme_colors.into(),
+        prefer_dark: prefer_dark.into(),
+    }
 }
 
 fn get_theme_colors() -> String {
