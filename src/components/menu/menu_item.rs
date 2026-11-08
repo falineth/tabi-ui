@@ -8,6 +8,7 @@ use crate::{Icon, IconShape};
 pub fn MenuItem<T: IconShape + Clone + PartialEq + 'static>(
     icon: T,
     #[props(default)] label: String,
+    #[props(default)] disabled: bool,
     #[props(default)] onclick: EventHandler<Event<MouseData>>,
 ) -> Element {
     let item_id = use_unique_id();
@@ -21,6 +22,10 @@ pub fn MenuItem<T: IconShape + Clone + PartialEq + 'static>(
     });
 
     let handle_click = use_callback(move |event| {
+        if disabled {
+            return;
+        }
+
         menu_context.open.set(false);
         onclick.call(event);
     });
@@ -31,7 +36,9 @@ pub fn MenuItem<T: IconShape + Clone + PartialEq + 'static>(
             class: "flex px-3 py-1 gap-2 cursor-default select-none",
             class: "border border-transparent rounded-sm",
             class: "data-highlighted:bg-window-decorationfocus/20 data-highlighted:border-window-decorationfocus",
-            "data-highlighted": if highlighted() { true },
+            class: "data-disabled:text-window-foregroundinactive",
+            "data-highlighted": if highlighted() && !disabled { true },
+            "data-disabled": if disabled { true },
             onpointerenter: move |_| list_context.active_item.set(Some(item_id())),
             onclick: handle_click,
             Icon { icon }

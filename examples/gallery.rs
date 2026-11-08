@@ -349,6 +349,8 @@ fn SliderPage() -> Element {
 
 #[component]
 fn DropdownMenuPage() -> Element {
+    let mut toast = use_toast();
+
     rsx! {
         div { class: "flex flex-col items-start p-4 gap-4",
             h1 { "Dropdown Menu" }
@@ -356,23 +358,24 @@ fn DropdownMenuPage() -> Element {
                 MenuItem {
                     icon: MdSettings,
                     label: "Settings",
-                    onclick: |_| debug!("Settings"),
+                    onclick: move |_| toast.info("Settings"),
                 }
                 MenuItem {
                     icon: MdEdit,
                     label: "Edit",
-                    onclick: |_| debug!("Edit"),
+                    disabled: true,
+                    onclick: move |_| toast.info("Edit"),
                 }
                 SubMenu { title: "More options", icon: MdMoreVert,
                     MenuItem {
                         icon: MdSettings,
                         label: "Preferences",
-                        onclick: |_| debug!("Preferences"),
+                        onclick: move |_| toast.info("Preferences"),
                     }
                     MenuItem {
                         icon: MdEdit,
                         label: "Advanced settings",
-                        onclick: |_| debug!("Advanced settings"),
+                        onclick: move |_| toast.info("Advanced settings"),
                     }
                 }
             }
@@ -382,6 +385,8 @@ fn DropdownMenuPage() -> Element {
 
 #[component]
 fn ContextMenuPage() -> Element {
+    let mut toast = use_toast();
+
     rsx! {
         div { class: "flex flex-col items-start p-4 gap-4 w-full h-full",
             h1 { "Context Menu" }
@@ -391,23 +396,24 @@ fn ContextMenuPage() -> Element {
                     MenuItem {
                         icon: MdSettings,
                         label: "Settings",
-                        onclick: |_| debug!("Settings"),
+                        onclick: move |_| toast.info("Settings"),
                     }
                     MenuItem {
                         icon: MdEdit,
                         label: "Edit",
-                        onclick: |_| debug!("Edit"),
+                        disabled: true,
+                        onclick: move |_| toast.info("Edit"),
                     }
                     SubMenu { title: "More options", icon: MdMoreVert,
                         MenuItem {
                             icon: MdSettings,
                             label: "Preferences",
-                            onclick: |_| debug!("Preferences"),
+                            onclick: move |_| toast.info("Preferences"),
                         }
                         MenuItem {
                             icon: MdEdit,
                             label: "Advanced settings",
-                            onclick: |_| debug!("Advanced settings"),
+                            onclick: move |_| toast.info("Advanced settings"),
                         }
                     }
                 }
