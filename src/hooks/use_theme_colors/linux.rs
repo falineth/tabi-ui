@@ -7,6 +7,8 @@ use dbus::message::MatchRule;
 use dbus::nonblock::{MsgMatch, Proxy, SyncConnection};
 use dioxus::prelude::*;
 
+use crate::ThemeDetails;
+
 const DEFAULT_THEME: &str = include_str!("../../../assets/default_theme.css");
 const DEFAULT_WINDOW_BACKGROUND: (u8, u8, u8, u8) = (0xEF, 0xF0, 0xF1, 0xFF);
 
@@ -19,6 +21,7 @@ pub struct ThemeContext {
     pub dbus_conn: Option<Arc<SyncConnection>>,
     pub theme_css: String,
     pub bg_color: (u8, u8, u8, u8),
+    pub prefer_dark: bool,
 }
 
 impl ThemeContext {
@@ -28,6 +31,7 @@ impl ThemeContext {
                 dbus_conn: None,
                 theme_css: DEFAULT_THEME.to_string(),
                 bg_color: DEFAULT_WINDOW_BACKGROUND,
+                prefer_dark: false,
             };
         };
 
@@ -36,11 +40,12 @@ impl ThemeContext {
             println!("DBus connection lost: {:?}", err);
         });
 
-        let Some((theme_css, bg_color)) = get_theme_css(conn.clone()).await else {
+        let Some((theme_css, bg_color, prefer_dark)) = get_theme_css(conn.clone()).await else {
             return ThemeContext {
                 dbus_conn: Some(conn),
                 theme_css: DEFAULT_THEME.to_string(),
                 bg_color: DEFAULT_WINDOW_BACKGROUND,
+                prefer_dark: false,
             };
         };
 
@@ -48,11 +53,12 @@ impl ThemeContext {
             dbus_conn: Some(conn),
             theme_css,
             bg_color,
+            prefer_dark,
         };
     }
 }
 
-pub fn use_theme_colors() -> ReadSignal<String, SyncStorage> {
+pub fn use_theme_colors() -> ThemeDetails {
     /*
 
         Contexts
@@ -73,6 +79,14 @@ pub fn use_theme_colors() -> ReadSignal<String, SyncStorage> {
         }
 
         DEFAULT_THEME.to_string()
+    });
+
+    let prefer_dark: Signal<bool, SyncStorage> = use_signal_sync(|| {
+        if let Some(theme_context) = theme_context.as_ref() {
+            return theme_context.prefer_dark;
+        }
+
+        return false;
     });
 
     let mut dbus_conn: Signal<Option<Arc<SyncConnection>>, SyncStorage> =
@@ -108,15 +122,19 @@ pub fn use_theme_colors() -> ReadSignal<String, SyncStorage> {
 
             dbus_conn.set(Some(conn.clone()));
 
-            theme_refresh(theme_colors, dbus_conn.cloned());
+            theme_refresh(theme_colors, prefer_dark, dbus_conn.cloned());
 
             let incoming_signal = message_match.cb(
                 move |_, (source, setting, _value): (String, String, VariantRefArg)| {
-                    if source == "org.kde.kdeglobals.General"
-                        && matches!(setting.as_str(), "ColorScheme" | "font" | "fixed")
-                    {
+                    if matches!(
+                        source.as_str(),
+                        "org.kde.kdeglobals.General" | "org.freedesktop.appearance"
+                    ) && matches!(
+                        setting.as_str(),
+                        "ColorScheme" | "color-scheme" | "font" | "fixed"
+                    ) {
                         println!("Theme colors changed");
-                        theme_refresh(theme_colors, dbus_conn.cloned());
+                        theme_refresh(theme_colors, prefer_dark, dbus_conn.cloned());
                     }
 
                     true
@@ -127,7 +145,10 @@ pub fn use_theme_colors() -> ReadSignal<String, SyncStorage> {
         }
     });
 
-    return theme_colors.into();
+    return ThemeDetails {
+        theme_colors: theme_colors.into(),
+        prefer_dark: prefer_dark.into(),
+    };
 }
 
 fn get_dbus_connection(theme_context: Option<&ThemeContext>) -> Option<Arc<SyncConnection>> {
@@ -149,6 +170,7 @@ fn get_dbus_connection(theme_context: Option<&ThemeContext>) -> Option<Arc<SyncC
 
 fn theme_refresh(
     mut theme_colors: Signal<String, SyncStorage>,
+    mut prefer_dark: Signal<bool, SyncStorage>,
     dbus_conn: Option<Arc<SyncConnection>>,
 ) {
     let Some(conn) = dbus_conn else {
@@ -156,18 +178,21 @@ fn theme_refresh(
     };
 
     tokio::spawn(async move {
-        if let Some((new_theme_css, _bg_color)) = get_theme_css(conn).await {
+        if let Some((new_theme_css, _bg_color, prefer_dark_flag)) = get_theme_css(conn).await {
+            prefer_dark.set(prefer_dark_flag);
             theme_colors.set(new_theme_css);
         }
     });
 }
 
-async fn get_theme_css(conn: Arc<SyncConnection>) -> Option<(String, (u8, u8, u8, u8))> {
+async fn get_theme_css(conn: Arc<SyncConnection>) -> Option<(String, (u8, u8, u8, u8), bool)> {
     let mut css_lines = Vec::new();
+    let mut prefer_dark = false;
 
     let settings = read_portal_settings(
         &conn,
         &[
+            "org.freedesktop.appearance",
             "org.kde.kdeglobals.General",
             "org.kde.kdeglobals.Colors:Button",
             "org.kde.kdeglobals.Colors:Complementary",
@@ -189,6 +214,13 @@ async fn get_theme_css(conn: Arc<SyncConnection>) -> Option<(String, (u8, u8, u8
             css_lines.push(font_declaration);
             css_lines.push("--default-mono-font-family:var(--font-mono);".to_string());
         }
+    }
+
+    if let Some(appearance_settings) = settings.get("org.freedesktop.appearance") {
+        prefer_dark = appearance_settings
+            .get("color-scheme")
+            .map(|value| value == "1")
+            .unwrap_or_default();
     }
 
     if let Some(button_colors) =
@@ -240,7 +272,7 @@ async fn get_theme_css(conn: Arc<SyncConnection>) -> Option<(String, (u8, u8, u8
 
     let theme_css = format!(":root {{{}}}", css_lines.join(""));
 
-    return (theme_css, bg_color).into();
+    return Some((theme_css, bg_color, prefer_dark));
 }
 
 fn get_font_css(
@@ -341,5 +373,8 @@ fn get_variant_string(value: VariantRefArg) -> String {
     return value
         .as_str()
         .map(|value| value.to_string())
+        .or_else(|| value.as_i64().map(|value| value.to_string()))
+        .or_else(|| value.as_u64().map(|value| value.to_string()))
+        .or_else(|| value.as_f64().map(|value| value.to_string()))
         .unwrap_or_default();
 }
