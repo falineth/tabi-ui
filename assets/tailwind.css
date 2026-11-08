@@ -53,6 +53,7 @@
     --color-window-backgroundnormal: #eff0f1;
     --color-window-decorationfocus: #3daee9;
     --color-window-decorationhover: #3daee9;
+    --color-window-foregroundinactive: #707d8a;
     --color-window-foregroundnormal: #232629;
     --color-black: #000000;
     --color-background: var(--background);
@@ -1622,6 +1623,9 @@
   }
   .data-disabled\:cursor-not-allowed:where([data-disabled="true"]), .data-disabled\:cursor-not-allowed:where([data-disabled]:not([data-disabled="false"])) {
     cursor: not-allowed;
+  }
+  .data-disabled\:text-window-foregroundinactive:where([data-disabled="true"]), .data-disabled\:text-window-foregroundinactive:where([data-disabled]:not([data-disabled="false"])) {
+    color: var(--color-window-foregroundinactive);
   }
   .data-disabled\:opacity-50:where([data-disabled="true"]), .data-disabled\:opacity-50:where([data-disabled]:not([data-disabled="false"])) {
     opacity: 50%;
