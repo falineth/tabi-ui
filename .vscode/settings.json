@@ -120,5 +120,6 @@
     "tailwindCSS.includeLanguages": {
         "rust": "html"
     },
-    "rust-analyzer.cargo.features": ["desktop"]
+    "rust-analyzer.cargo.features": ["desktop"],
+    "editor.minimap.markSectionHeaderRegex": "\\n\\s*\\n\\s{1,8}(?<label>\\w*)\\n\\s*\\n"
 }
