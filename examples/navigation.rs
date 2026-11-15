@@ -28,7 +28,7 @@ pub fn NavbarView() -> Element {
                 DrawAction { icon: MdInfoOutline, label: "About", onclick: handle_goto_about }
             },
             content: rsx! {
-                div { class: "p-2", Slider {} }
+                div { class: "p-2", Slider::<f32> {} }
             },
             Outlet::<Route> {}
         }
