@@ -372,20 +372,56 @@ fn TogglePage() -> Element {
 
 #[component]
 fn SliderPage() -> Element {
-    let mut value = use_signal(|| Some(50f32));
+    let mut float_value = use_signal(|| Some(50f32));
+
+    let mut unsigned_int_value = use_signal(|| Some(50u32));
+
+    let mut signed_int_value = use_signal(|| Some(50i32));
 
     rsx! {
         div { class: "flex flex-col items-start p-4 gap-4",
-            "value: {value.read().unwrap_or_default()}"
-            Slider {
+            "float value: {float_value.read().unwrap_or_default():.2}"
+            Slider::<f32> {
                 class: "",
-                value,
-                on_value_change: move |new_value| value.set(Some(new_value)),
+                value: float_value,
+                small_step: 0.25,
+                on_value_change: move |new_value| float_value.set(Some(new_value)),
             }
-            Slider {
+            Slider::<f32> {
                 class: "",
-                value,
-                on_value_change: move |new_value| value.set(Some(new_value)),
+                value: float_value,
+                small_step: 0.25,
+                on_value_change: move |new_value| float_value.set(Some(new_value)),
+                orientation: SliderOrientation::Vertical,
+            }
+        }
+        div { class: "flex flex-col items-start p-4 gap-4",
+            "unsigned int value: {unsigned_int_value.read().unwrap_or_default()}"
+            Slider::<u32> {
+                class: "",
+                value: unsigned_int_value,
+                on_value_change: move |new_value| unsigned_int_value.set(Some(new_value)),
+            }
+            Slider::<u32> {
+                class: "",
+                value: unsigned_int_value,
+                on_value_change: move |new_value| unsigned_int_value.set(Some(new_value)),
+                orientation: SliderOrientation::Vertical,
+            }
+        }
+        div { class: "flex flex-col items-start p-4 gap-4",
+            "signed int value: {signed_int_value.read().unwrap_or_default()}"
+            Slider::<i32> {
+                class: "",
+                value: signed_int_value,
+                min: -100,
+                on_value_change: move |new_value| signed_int_value.set(Some(new_value)),
+            }
+            Slider::<i32> {
+                class: "",
+                value: signed_int_value,
+                min: -100,
+                on_value_change: move |new_value| signed_int_value.set(Some(new_value)),
                 orientation: SliderOrientation::Vertical,
             }
         }
