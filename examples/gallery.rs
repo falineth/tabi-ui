@@ -9,6 +9,7 @@ enum PageTypes {
     #[default]
     Button,
     TextInput,
+    NumericInput,
     TextArea,
     Toggle,
     Slider,
@@ -51,6 +52,11 @@ fn Pages() -> Element {
                 "Dropdown Menu"
             }
             Toggle {
+                value: *current_page.read() == PageTypes::NumericInput,
+                on_value_change: move |_| current_page.set(PageTypes::NumericInput),
+                "Numeric Input"
+            }
+            Toggle {
                 value: *current_page.read() == PageTypes::Slider,
                 on_value_change: move |_| current_page.set(PageTypes::Slider),
                 "Slider"
@@ -84,6 +90,9 @@ fn Pages() -> Element {
                     },
                     PageTypes::TextInput => rsx! {
                         TextInputPage {}
+                    },
+                    PageTypes::NumericInput => rsx! {
+                        NumericInputPage {}
                     },
                     PageTypes::TextArea => rsx! {
                         TextAreaPage {}
@@ -217,6 +226,42 @@ fn TextInputPage() -> Element {
                     on_accept: move |value| toast.info(value),
                 }
             }
+        }
+    }
+}
+
+#[component]
+fn NumericInputPage() -> Element {
+    let mut value_u32: Signal<Option<NumericInputValue<_>>> = use_signal(|| Some(42_u32.into()));
+
+    let mut value_i32: Signal<Option<NumericInputValue<_>>> = use_signal(|| Some(42_i32.into()));
+
+    let mut value_f32: Signal<Option<NumericInputValue<_>>> = use_signal(|| Some(42_f32.into()));
+
+    let mut toast = use_toast();
+
+    rsx! {
+        div { class: "flex flex-col p-1 gap-1",
+            h1 { "u32" }
+            NumericInput::<u32> {
+                value: value_u32,
+                on_value_change: move |next| value_u32.set(Some(next)),
+                on_accept: move |value| toast.info(format!("Accepted: {value}")),
+            }
+            h1 { "i32" }
+            NumericInput::<i32> {
+                value: value_i32,
+                on_value_change: move |next| value_i32.set(Some(next)),
+                on_accept: move |value| toast.info(format!("Accepted: {value}")),
+            }
+            h1 { "f32" }
+            NumericInput::<f32> {
+                value: value_f32,
+                on_value_change: move |next| value_f32.set(Some(next)),
+                on_accept: move |value| toast.info(format!("Accepted: {value}")),
+            }
+            h1 { "Disabled" }
+            NumericInput::<i16> { disabled: true }
         }
     }
 }

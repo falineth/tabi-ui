@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-use tabi_ui::ThemeContext;
 use tabi_ui::components::*;
 use tabi_ui::icons::{MdAdd, MdEdit, MdMoreVert, MdSettings};
 
@@ -9,6 +8,7 @@ const TAILWIND_CSS: Asset = asset!("../assets/tailwind.css");
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
     use dioxus::desktop::{Config, WindowBuilder};
+    use tabi_ui::ThemeContext;
 
     let theme_context = ThemeContext::init().await;
 
